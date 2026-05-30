@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: Demo Project API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      summary: Demo health endpoint
+      responses:
+        "200":
+          description: Service is healthy

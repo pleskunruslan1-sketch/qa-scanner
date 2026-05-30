@@ -2,7 +2,7 @@
 
 import { loadConfig, ConfigError } from "./config/index.js";
 import { createContext } from "./context/index.js";
-import { runSecurityChecks, runStaticRepositoryChecks } from "./checks/index.js";
+import { runApiChecks, runSecurityChecks, runStaticRepositoryChecks } from "./checks/index.js";
 import { createReport, writeMarkdownReport } from "./report/index.js";
 
 async function main(): Promise<void> {
@@ -11,13 +11,14 @@ async function main(): Promise<void> {
   const context = await createContext(config);
   const findings = [
     ...(await runStaticRepositoryChecks(context)),
-    ...(await runSecurityChecks(context))
+    ...(await runSecurityChecks(context)),
+    ...(await runApiChecks(context))
   ];
   const report = createReport(findings, context.detectedStack, context.inventory);
 
   await writeMarkdownReport(report, context.config.reportPath);
 
-  console.log("QA scanner static repository scan completed.");
+  console.log("QA scanner scan completed.");
   console.log(`Config: ${context.config.configPath}`);
   console.log(`Target project: ${context.config.targetProjectPath}`);
   console.log(`Report path: ${context.config.reportPath}`);
