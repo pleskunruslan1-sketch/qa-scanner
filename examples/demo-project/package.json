@@ -1,0 +1,13 @@
+{
+  "name": "demo-project",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "node ./scripts/verify-install.js",
+    "test": "node --test",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "lodash": "4.16.0"
+  }
+}
