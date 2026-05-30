@@ -2,20 +2,27 @@
 
 import { loadConfig, ConfigError } from "./config/index.js";
 import { createContext } from "./context/index.js";
-import { createEmptyReport } from "./report/index.js";
+import { runSecurityChecks, runStaticRepositoryChecks } from "./checks/index.js";
+import { createReport, writeMarkdownReport } from "./report/index.js";
 
 async function main(): Promise<void> {
   const configPath = parseConfigPath(process.argv.slice(2));
   const config = await loadConfig(configPath);
-  const context = createContext(config);
-  const report = createEmptyReport();
+  const context = await createContext(config);
+  const findings = [
+    ...(await runStaticRepositoryChecks(context)),
+    ...(await runSecurityChecks(context))
+  ];
+  const report = createReport(findings, context.detectedStack, context.inventory);
 
-  console.log("QA scanner scaffold initialized.");
+  await writeMarkdownReport(report, context.config.reportPath);
+
+  console.log("QA scanner static repository scan completed.");
   console.log(`Config: ${context.config.configPath}`);
   console.log(`Target project: ${context.config.targetProjectPath}`);
   console.log(`Report path: ${context.config.reportPath}`);
-  console.log(`Findings prepared: ${report.summary.totalFindings}`);
-  console.log("No checks are implemented in TODO #1.");
+  console.log(`Detected stacks: ${context.detectedStack.all.join(", ")}`);
+  console.log(`Findings written: ${report.summary.totalFindings}`);
 }
 
 function parseConfigPath(args: string[]): string {
