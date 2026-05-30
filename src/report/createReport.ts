@@ -69,5 +69,5 @@ function createNarrative(findings: Finding[], detectedStack: DetectedStack): str
   const warningCount = findings.filter((finding) => finding.status === "Warn").length;
   const skippedCount = findings.filter((finding) => finding.status === "Skipped").length;
 
-  return `QA scan detected ${detectedStack.all.join(", ")} with ${detectedStack.confidence} confidence. ${warningCount} warning(s) and ${skippedCount} skipped check(s) were reported. Runtime API checks run only against configured localhost URLs; Playwright UI and AI checks are not part of TODO #4.`;
+  return `QA scan detected ${detectedStack.all.join(", ")} with ${detectedStack.confidence} confidence. ${warningCount} warning(s) and ${skippedCount} skipped check(s) were reported. Runtime API and Playwright UI checks run only against configured localhost URLs; AI checks are not part of TODO #5.`;
 }

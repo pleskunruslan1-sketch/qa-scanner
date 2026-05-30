@@ -2,7 +2,12 @@
 
 import { loadConfig, ConfigError } from "./config/index.js";
 import { createContext } from "./context/index.js";
-import { runApiChecks, runSecurityChecks, runStaticRepositoryChecks } from "./checks/index.js";
+import {
+  runApiChecks,
+  runSecurityChecks,
+  runStaticRepositoryChecks,
+  runUiChecks
+} from "./checks/index.js";
 import { createReport, writeMarkdownReport } from "./report/index.js";
 
 async function main(): Promise<void> {
@@ -12,7 +17,8 @@ async function main(): Promise<void> {
   const findings = [
     ...(await runStaticRepositoryChecks(context)),
     ...(await runSecurityChecks(context)),
-    ...(await runApiChecks(context))
+    ...(await runApiChecks(context)),
+    ...(await runUiChecks(context))
   ];
   const report = createReport(findings, context.detectedStack, context.inventory);
 
