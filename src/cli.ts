@@ -3,6 +3,7 @@
 import { loadConfig, ConfigError } from "./config/index.js";
 import { createContext } from "./context/index.js";
 import {
+  runAiChecks,
   runApiChecks,
   runSecurityChecks,
   runStaticRepositoryChecks,
@@ -20,6 +21,7 @@ async function main(): Promise<void> {
     ...(await runApiChecks(context)),
     ...(await runUiChecks(context))
   ];
+  findings.push(...(await runAiChecks(context, findings)));
   const report = createReport(findings, context.detectedStack, context.inventory);
 
   await writeMarkdownReport(report, context.config.reportPath);

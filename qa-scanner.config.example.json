@@ -1,6 +1,6 @@
 {
   "targetProjectPath": "./examples/demo-project",
-  "reportPath": "./reports/todo2-report.md",
+  "reportPath": "./reports/sample-report.md",
   "runtime": {
     "apiUrl": "http://localhost:3000/health",
     "webUrl": "http://localhost:3000",
