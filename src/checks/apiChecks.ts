@@ -2,7 +2,7 @@ import path from "node:path";
 import type { FileInventoryEntry, Finding, ScanContext } from "../types/index.js";
 
 const DEFAULT_TIMEOUT_MS = 5_000;
-const MAX_EVIDENCE_ITEMS = 10;
+const MAX_EVIDENCE_ITEMS = 5;
 
 interface RuntimeAttempt {
   available: boolean;
@@ -241,7 +241,7 @@ function createTechnologyDisclosureFinding(observation: RuntimeApiObservation): 
       ? "Technology disclosure headers were directly observed on the runtime API response."
       : "No obvious technology disclosure headers were observed on the runtime API response.",
     recommendation:
-      "Review whether response headers expose more implementation detail than intended.",
+      "Treat this as a runtime observation and review whether response headers expose more implementation detail than intended.",
     evidence: [
       { label: "x-powered-by", value: poweredBy ?? "not provided" },
       { label: "server", value: server ?? "not provided" }
@@ -277,7 +277,7 @@ function createSecurityHeadersFinding(observation: RuntimeApiObservation): Findi
 }
 
 function createStaticFallbackFinding(context: ScanContext): Finding {
-  const evidence = findStaticApiEvidence(context.inventory.files);
+  const evidence = findStaticApiEvidence(context);
 
   if (evidence.length === 0) {
     return {
@@ -301,43 +301,62 @@ function createStaticFallbackFinding(context: ScanContext): Finding {
       "Static API fallback evidence was found. This is static evidence, not runtime contract validation.",
     recommendation:
       "Use these files to guide API contract checks until the configured runtime API is reachable.",
-    evidence: evidence.slice(0, MAX_EVIDENCE_ITEMS)
+    evidence: capEvidence(evidence)
   };
 }
 
-function findStaticApiEvidence(files: FileInventoryEntry[]): Finding["evidence"] {
+function findStaticApiEvidence(context: ScanContext): Finding["evidence"] {
   const evidence: Finding["evidence"] = [];
+  const isNodeOrTypeScript =
+    context.detectedStack.all.includes("Node.js") || context.detectedStack.all.includes("TypeScript");
 
-  for (const file of files) {
+  for (const file of context.inventory.files) {
     const normalizedPath = normalizePath(file.relativePath);
     const basename = path.basename(normalizedPath).toLowerCase();
 
     if (isOpenApiFile(normalizedPath, basename)) {
-      evidence.push({ label: "OpenAPI file", value: normalizedPath });
+      evidence.push({ label: "OpenAPI spec evidence", value: normalizedPath });
       continue;
     }
 
     if (isRouteFile(normalizedPath, basename)) {
-      evidence.push({ label: "route file", value: normalizedPath });
+      evidence.push({
+        label: isNodeOrTypeScript ? "Node/TypeScript route evidence" : "route evidence",
+        value: normalizedPath
+      });
       continue;
     }
 
     if (basename.includes("controller")) {
-      evidence.push({ label: "controller file", value: normalizedPath });
+      evidence.push({ label: "controller evidence", value: normalizedPath });
       continue;
     }
 
     if (basename.includes("schema") || basename.endsWith(".graphql")) {
-      evidence.push({ label: "schema file", value: normalizedPath });
+      evidence.push({ label: "schema evidence", value: normalizedPath });
       continue;
     }
 
     if (isCommonApiServerFile(normalizedPath, basename)) {
-      evidence.push({ label: "common API/server file", value: normalizedPath });
+      evidence.push({ label: "common API/server evidence", value: normalizedPath });
     }
   }
 
   return evidence;
+}
+
+function capEvidence(evidence: Finding["evidence"]): Finding["evidence"] {
+  if (evidence.length <= MAX_EVIDENCE_ITEMS) {
+    return evidence;
+  }
+
+  return [
+    ...evidence.slice(0, MAX_EVIDENCE_ITEMS),
+    {
+      label: "evidence limit",
+      value: `showing first ${MAX_EVIDENCE_ITEMS} of ${evidence.length}`
+    }
+  ];
 }
 
 function isOpenApiFile(filePath: string, basename: string): boolean {
