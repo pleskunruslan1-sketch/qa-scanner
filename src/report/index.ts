@@ -1,1 +1,2 @@
-export { createEmptyReport } from "./createEmptyReport.js";
+export { createReport } from "./createReport.js";
+export { writeMarkdownReport } from "./writeMarkdownReport.js";

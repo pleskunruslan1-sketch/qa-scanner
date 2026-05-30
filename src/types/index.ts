@@ -4,7 +4,15 @@ export type {
   RuntimeConfig,
   ScannerConfig
 } from "./config.js";
-export type { ScanContext } from "./context.js";
+export type {
+  DetectedStack,
+  FileInventory,
+  FileInventoryEntry,
+  ScanContext,
+  StackConfidence,
+  StackEvidence,
+  StackName
+} from "./context.js";
 export type {
   Finding,
   FindingCategory,

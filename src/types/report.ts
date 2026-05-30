@@ -1,3 +1,5 @@
+import type { DetectedStack, FileInventory } from "./context.js";
+
 export type FindingStatus = "Pass" | "Warn" | "Fail" | "Skipped";
 
 export type FindingSeverity = "Critical" | "High" | "Medium" | "Low" | "Info";
@@ -33,6 +35,9 @@ export interface ReportSummary {
   totalFindings: number;
   byStatus: Record<FindingStatus, number>;
   bySeverity: Record<FindingSeverity, number>;
+  detectedStack: DetectedStack;
+  inventory: FileInventory;
+  narrative: string;
 }
 
 export interface ScanReport {
