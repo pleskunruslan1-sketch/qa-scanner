@@ -1,4 +1,5 @@
 import { opendir, lstat } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import type {
   DetectedStack,
@@ -20,6 +21,15 @@ const IGNORED_DIRECTORIES = [
 ];
 
 const MAX_FILES = 2_000;
+const SENSITIVE_ROOT_NAMES = new Set([
+  ".ssh",
+  ".aws",
+  ".azure",
+  ".config",
+  "Library",
+  "System",
+  "Windows"
+]);
 
 export async function createContext(config: LoadedConfig): Promise<ScanContext> {
   const inventory = await buildFileInventory(config.targetProjectPath);
@@ -33,6 +43,7 @@ export async function createContext(config: LoadedConfig): Promise<ScanContext> 
 
 async function buildFileInventory(rootPath: string): Promise<FileInventory> {
   const normalizedRoot = path.resolve(rootPath);
+  assertSafeTargetRoot(normalizedRoot);
   const files: FileInventoryEntry[] = [];
   let truncated = false;
 
@@ -96,11 +107,30 @@ async function visitDirectory(
   }
 }
 
-function ensureInsideRoot(rootPath: string, candidatePath: string): void {
+export function ensureInsideRoot(rootPath: string, candidatePath: string): void {
   const relativePath = path.relative(rootPath, candidatePath);
 
   if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     throw new Error(`Refusing to scan path outside targetProjectPath: ${candidatePath}`);
+  }
+}
+
+export function assertSafeTargetRoot(rootPath: string): void {
+  const normalizedRoot = path.resolve(rootPath);
+  const parsedRoot = path.parse(normalizedRoot).root;
+  const segments = normalizedRoot.split(path.sep).filter(Boolean);
+  const lastSegment = segments.at(-1);
+
+  if (normalizedRoot === parsedRoot) {
+    throw new Error("Refusing to scan a system root directory.");
+  }
+
+  if (lastSegment !== undefined && SENSITIVE_ROOT_NAMES.has(lastSegment)) {
+    throw new Error(`Refusing to scan sensitive directory: ${normalizedRoot}`);
+  }
+
+  if (normalizedRoot === os.homedir()) {
+    throw new Error(`Refusing to scan user home directory: ${normalizedRoot}`);
   }
 }
 

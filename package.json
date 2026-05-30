@@ -7,12 +7,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "scan": "tsx src/cli.ts"
+    "scan": "tsx src/cli.ts",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^22.19.19",
     "playwright": "^1.60.0",
     "tsx": "^4.22.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.7"
   }
 }
