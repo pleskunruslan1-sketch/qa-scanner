@@ -7,6 +7,8 @@ export interface RuntimeConfig {
 export interface AiConfig {
   enabled?: boolean;
   provider?: "offline" | string;
+  endpointUrl?: string;
+  model?: string;
   apiKeyEnv?: string;
 }
 

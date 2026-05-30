@@ -92,6 +92,8 @@ function validateAi(value: unknown): LoadedConfig["ai"] {
 
   const enabled = value.enabled;
   const provider = value.provider;
+  const endpointUrl = value.endpointUrl;
+  const model = value.model;
   const apiKeyEnv = value.apiKeyEnv;
 
   if (enabled !== undefined && typeof enabled !== "boolean") {
@@ -102,6 +104,17 @@ function validateAi(value: unknown): LoadedConfig["ai"] {
     throw new ConfigError('Config field "ai.provider" must be a non-empty string when provided.');
   }
 
+  if (
+    endpointUrl !== undefined &&
+    (typeof endpointUrl !== "string" || endpointUrl.length === 0)
+  ) {
+    throw new ConfigError('Config field "ai.endpointUrl" must be a non-empty string when provided.');
+  }
+
+  if (model !== undefined && (typeof model !== "string" || model.length === 0)) {
+    throw new ConfigError('Config field "ai.model" must be a non-empty string when provided.');
+  }
+
   if (apiKeyEnv !== undefined && (typeof apiKeyEnv !== "string" || apiKeyEnv.length === 0)) {
     throw new ConfigError('Config field "ai.apiKeyEnv" must be a non-empty string when provided.');
   }
@@ -109,6 +122,8 @@ function validateAi(value: unknown): LoadedConfig["ai"] {
   return {
     enabled,
     provider: provider ?? "offline",
+    endpointUrl,
+    model,
     apiKeyEnv
   };
 }

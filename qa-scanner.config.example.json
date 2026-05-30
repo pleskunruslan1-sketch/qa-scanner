@@ -9,6 +9,8 @@
   "ai": {
     "enabled": false,
     "provider": "offline",
+    "endpointUrl": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-4o-mini",
     "apiKeyEnv": "OPENAI_API_KEY"
   }
 }

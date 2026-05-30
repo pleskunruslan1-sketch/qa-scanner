@@ -55,6 +55,8 @@ The example config scans `examples/demo-project` and writes `reports/sample-repo
 - `runtime.timeoutMs`: timeout for runtime API and web checks.
 - `ai.enabled`: whether external AI review is enabled.
 - `ai.provider`: `offline` by default.
+- `ai.endpointUrl`: OpenAI-compatible chat completions endpoint used only when external AI mode is enabled.
+- `ai.model`: model name used only when external AI mode is enabled.
 - `ai.apiKeyEnv`: environment variable name for an optional paid AI provider key.
 
 All target-specific URLs, ports, paths, credentials, report destinations, runtime timeouts, and AI settings come from config or environment variables.
@@ -161,7 +163,7 @@ Secret handling:
 
 AI sanitization:
 
-- External AI providers are optional.
+- External AI providers are optional and currently use the `openai-compatible` chat completions shape.
 - Default mode is offline.
 - If external AI is enabled, only sanitized metadata should be sent.
 - No `.env` contents, tokens, secrets, private keys, cookies, auth headers, or full source trees should be sent.
@@ -177,6 +179,7 @@ Current AI posture:
 - AI is optional.
 - Default mode is offline.
 - The default sample run does not require paid AI credentials.
+- To enable LLM mode, set `ai.enabled=true`, `ai.provider=openai-compatible`, `ai.endpointUrl`, `ai.model`, and `ai.apiKeyEnv`.
 - Enabling external providers may incur cost depending on provider, model, and input size.
 - Offline mode always emits an AI-related finding using deterministic synthesis.
 - Only sanitized metadata should be sent to external providers.
@@ -191,6 +194,7 @@ Offline fallback:
 - The scanner produces a useful AI-related finding without a paid provider.
 - Non-AI findings remain deterministic and inspectable.
 - The offline fallback uses detected stacks, README presence, package scripts, CI/test/lint signals, API fallback evidence, and previous findings.
+- The default sample report shows offline fallback rather than paid LLM output so reviewers can run it without credentials.
 
 ## Trade-offs
 
