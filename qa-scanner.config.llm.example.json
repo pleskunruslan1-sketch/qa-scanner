@@ -1,0 +1,16 @@
+{
+  "targetProjectPath": "./examples/demo-project",
+  "reportPath": "./reports/llm-report.md",
+  "runtime": {
+    "apiUrl": "http://localhost:3000/health",
+    "webUrl": "http://localhost:3000",
+    "timeoutMs": 5000
+  },
+  "ai": {
+    "enabled": true,
+    "provider": "openai-compatible",
+    "endpointUrl": "https://api.openai.com/v1/chat/completions",
+    "model": "gpt-4o-mini",
+    "apiKeyEnv": "OPENAI_API_KEY"
+  }
+}

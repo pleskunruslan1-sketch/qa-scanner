@@ -12,6 +12,7 @@ interface BrowserObservation {
   title: string;
   htmlLang: string | null;
   imagesWithoutAlt: number;
+  formCount: number;
   desktopLoaded: boolean;
   mobileLoaded: boolean;
 }
@@ -55,7 +56,8 @@ export async function runUiChecks(context: ScanContext): Promise<Finding[]> {
       createBrokenImagesFinding(observation),
       createDesktopViewportFinding(observation),
       createMobileViewportFinding(observation),
-      createAccessibilityBaselineFinding(observation)
+      createAccessibilityBaselineFinding(observation),
+      createFormDiscoveryFinding(observation)
     ];
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown Playwright error.";
@@ -100,6 +102,7 @@ async function observePage(
   const title = await page.title();
   const htmlLang = await page.locator("html").getAttribute("lang");
   const imagesWithoutAlt = await countImagesWithoutAlt(page);
+  const formCount = await countForms(page);
 
   await page.setViewportSize(MOBILE_VIEWPORT);
   const mobileLoaded = await hasVisibleDocument(page);
@@ -112,6 +115,7 @@ async function observePage(
     title,
     htmlLang,
     imagesWithoutAlt,
+    formCount,
     desktopLoaded,
     mobileLoaded
   };
@@ -265,6 +269,35 @@ function createAccessibilityBaselineFinding(observation: BrowserObservation): Fi
   };
 }
 
+function createFormDiscoveryFinding(observation: BrowserObservation): Finding {
+  if (observation.formCount === 0) {
+    return {
+      checkId: "ui.form-flow-safety",
+      category: "ui",
+      status: "Skipped",
+      severity: "Info",
+      finding: "No forms were discovered on the configured smoke page.",
+      recommendation:
+        "Configure a representative local page with forms if form-flow discovery is required.",
+      evidence: [{ label: "formsFound", value: "0" }],
+      skippedReason: "No form submission flow was available on the configured page."
+    };
+  }
+
+  return {
+    checkId: "ui.form-flow-safety",
+    category: "ui",
+    status: "Skipped",
+    severity: "Info",
+    finding:
+      "Forms were discovered, but submission was intentionally skipped to avoid mutating local data.",
+    recommendation:
+      "Review these forms manually or add explicit non-mutating test fixtures before automating submissions.",
+    evidence: [{ label: "formsFound", value: String(observation.formCount) }],
+    skippedReason: "Safe form discovery does not click buttons, submit forms, or mutate data."
+  };
+}
+
 function skippedFinding(
   checkId: string,
   finding: string,
@@ -298,6 +331,10 @@ async function countImagesWithoutAlt(page: Page): Promise<number> {
   return page.evaluate<number>(
     "[...document.images].filter((image) => !image.hasAttribute('alt')).length"
   );
+}
+
+async function countForms(page: Page): Promise<number> {
+  return page.evaluate<number>("document.forms.length");
 }
 
 function isAllowedBrowserUrl(requestUrl: string): boolean {

@@ -27,6 +27,7 @@ Runtime analysis:
 - Static API fallback discovers OpenAPI specs, route files, controller files, schema files, and common server files when the API is unavailable.
 - Browser checks use Playwright against the configured local `runtime.webUrl` only.
 - Browser checks cover page load, console errors, broken images, desktop/mobile smoke viewports, and a basic accessibility baseline.
+- Browser checks include safe form discovery. The scanner counts forms but does not click buttons, submit forms, or mutate data.
 
 AI review:
 
@@ -210,6 +211,7 @@ Offline fallback:
 - No authenticated runtime testing.
 - No full API contract validation.
 - No crawler, fuzzer, or multi-page browser journey support.
+- No form submission automation; only safe form discovery is performed.
 - No external AI call in the default sample run.
 
 ## Future Improvements
