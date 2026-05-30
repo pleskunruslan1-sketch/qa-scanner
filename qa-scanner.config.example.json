@@ -1,0 +1,14 @@
+{
+  "targetProjectPath": "./examples/demo-project",
+  "reportPath": "./reports/sample-report.md",
+  "runtime": {
+    "apiUrl": "http://localhost:3000/health",
+    "webUrl": "http://localhost:3000",
+    "timeoutMs": 5000
+  },
+  "ai": {
+    "enabled": false,
+    "provider": "offline",
+    "apiKeyEnv": "OPENAI_API_KEY"
+  }
+}
