@@ -10,6 +10,5 @@ Expected evidence:
 - `04-implementation-milestones`
 - `05-validation-run`
 - `06-sample-report-generation`
-- Optional: `cursor-chat-transcript.md`
 
 Do not reconstruct final-state screenshots as process evidence. The evidence should show planning, iteration, implementation milestones, validation, and sample report generation.
